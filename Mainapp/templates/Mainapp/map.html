@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+
+		</style>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=t7KGv4HrfrU9sRY3KjpRmd8qF1q8tHd0"></script>
+		<script src="../../static/Mainapp/js/map_jquery.js"></script>
+
+        <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body,html {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			font-family: "微软雅黑";
+		}
+
+		#allMap {
+			height: 100%;
+			width: 100%;
+		}
+        /*隐藏地图控件*/
+        .anchorBL, .BMap_cpyCtrl {
+            display: none;
+        }
+        /*地图聚合样式*/
+        .bubble p {
+        	width: 80px;
+        	line-height: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 14px;
+        }
+        .bubble .name {
+			margin-top: 20px;
+        }
+        .bubble .count {
+			// margin-top: -10px;
+        }
+        .ZLQbubble{
+			text-align: center;
+			padding: 0px 5px;
+        }
+        .ZLQbubble span{
+        	height: 22px; //高度
+        	line-height: 22px;
+        	color: #fff;
+            font-size: 14px;
+        }
+        .ZLQbubble .count{
+        	font-weight: bold;
+        }
+        .drawing , .exit{
+        	position: absolute;
+        	top: 10px;
+        	left: 1300px;
+        	background: #00a65b;
+        	border: 0px;
+        	color: white;
+        	width: 100px;
+        	height: 100px;
+        	line-height: 25px;
+        	font-size: 15px;
+        	font-weight: bold;
+        	border-radius: 15px;
+        	outline:none;
+        }
+        .exit{
+        	left: 1410px;
+        }
+        .houseList.active {
+    left: 0;
+}
+    </style>
+	</head>
+
+	<body>
+		<div id="allMap">
+		</div>
+		<button class="drawing" id="draw">画圈找房</button>
+		<button class="exit" id="exit">退出画圈</button>
+<script type="text/javascript">
+
+
+	var map = null;
+	//所有行政边界
+	var plyAll = {};
+	//第三级小区数据marker数组
+	var thirdlyMkr = [];
+	var area = {{ area|safe }};
+    var firstData = {{ firstData|safe }};
+    var secondData = {{ secondData|safe }};
+    var thirdlyData = {{ thirdlyData|safe }};
+
+	//是否处于画圈状态下
+	var isInDrawing = false;
+	//是否处于鼠标左键按下状态下
+	var isMouseDown = false;
+	//存储画出折线点的数组
+	var polyPointArray = [];
+	//上次操作画出的折线
+	var lastPolyLine = null;
+	//画圈完成后生成的多边形
+	var polygonAfterDraw = null;
+	var drawBtn = document.getElementById("draw");
+	var exitBtn = document.getElementById("exit");
+
+	//初始化地图
+	initMap()
+	//初始化一级数据
+	addMarker(firstData, true)
+
+	//搜索二级数据坐标  --此处搜索只是为了方便，如果项目实际用那就提前将坐标爬取下来
+	searchCoord(secondData)
+	//搜索三级数据坐标
+	//searchCoord(thirdlyData)
+
+	//初始化画圈找房
+	drawing();
+
+	function initMap() {
+		map = new BMap.Map("allMap", {
+			enableMapClick: false,
+			minZoom: 10
+		}); // 创建Map实例
+		map.centerAndZoom(new BMap.Point(121.329036, 31.242103), 12); // 初始化地图,设置中心点坐标和地图级别
+		map.enableScrollWheelZoom(true);
+		//监听地图级别缩放事件，当级别为9时默认加载集合点，扩大级别时显示详细点位数据
+		map.addEventListener("zoomend", function() {
+			var zoomLevel = map.getZoom(); //获取地图缩放级别
+			if(zoomLevel <= 13) {
+				addMarker(firstData, true);
+			} else if(zoomLevel > 13 && zoomLevel <= 15) {
+				addMarker(secondData, false);
+			} else if(zoomLevel > 15) {
+				addLable(thirdlyData)
+			}
+		});
+
+		//监听地图移动,根据视野动态加载
+		map.addEventListener("moveend", function() {
+			var zoomLevel = map.getZoom(); //获取地图缩放级别
+			if(zoomLevel > 15) {
+				addLable(thirdlyData)
+			}
+		});
+	}
+
+	/**
+	 * 查找坐标
+	 * @param {Object} data
+	 */
+	function searchCoord(data) {
+		var localSearch = new BMap.LocalSearch(map);
+		for(key in data) {
+			localSearch.search(key);
+			localSearch.setSearchCompleteCallback((searchResult) => {
+				var k = searchResult.keyword;
+				var poi = searchResult.getPoi(0);
+				data[k].longitude = poi.point.lng;
+				data[k].latitude = poi.point.lat;
+			});
+		}
+	}
+	//绑定按钮事件
+	function drawing() {
+		//开始画圈绑定事件
+		drawBtn.addEventListener('click', function(e) {
+			var zoomLevel = map.getZoom();
+			if(zoomLevel<=15){
+				alert("请放大到三级数据进行画图找房");
+				return;
+			}
+			//禁止地图移动点击等操作
+			map.clearOverlays()
+			map.disableDragging();
+			map.disableScrollWheelZoom();
+			map.disableDoubleClickZoom();
+			map.disableKeyboard();
+			//设置鼠标样式
+			map.setDefaultCursor('crosshair');
+			//设置标志位进入画圈状态
+			isInDrawing = true;
+		});
+
+		//退出画圈按钮绑定事件
+		exitBtn.addEventListener('click',function(e){
+			//恢复地图移动点击等操作
+			map.enableDragging();
+			map.enableScrollWheelZoom();
+			map.enableDoubleClickZoom();
+			map.enableKeyboard();
+			map.setDefaultCursor('default');
+			addLable(thirdlyData)
+			//设置标志位退出画圈状态
+			isInDrawing = false;
+		})
+
+		//为地图绑定鼠标按下事件(开始画圈)
+		map.addEventListener('mousedown', function(e) {
+			//如果处于画圈状态下,清空上次画圈的数据结构,设置isMouseDown进入画圈鼠标按下状态
+			if(isInDrawing) {
+				//清空地图上画的折线和圈
+				map.removeOverlay(polygonAfterDraw);
+				map.removeOverlay(lastPolyLine);
+				polyPointArray = [];
+				lastPolyLine = null;
+				isMouseDown = true;
+			}
+		});
+		//为地图绑定鼠标抬起事件(画圈完成)
+		map.addEventListener('mouseup', function(e) {
+			//如果处于画圈状态下 且 鼠标是按下状态
+			if(isInDrawing && isMouseDown) {
+				//退出画线状态
+				isMouseDown = false;
+				//添加多边形覆盖物,设置为禁止点击
+				var polygon = new window.BMap.Polygon(polyPointArray, {
+					strokeColor: '#46ACFF',
+					strokeOpacity: 1,
+					fillColor: '#46ACFF',
+					fillOpacity: 0.3,
+					enableClicking: false
+				});
+				map.addOverlay(polygon);
+				//包含情况
+				show(polygon);
+			}
+		});
+		//为地图绑定鼠标移动事件(触发画图)
+		map.addEventListener('mousemove', function(e) {
+			//如果处于鼠标按下状态,才能进行画操作
+			if(isMouseDown) {
+				//将鼠标移动过程中采集到的路径点加入数组保存
+				polyPointArray.push(e.point);
+				//除去上次的画线
+				if(lastPolyLine) {
+					map.removeOverlay(lastPolyLine)
+				}
+				//根据已有的路径数组构建画出的折线
+				var polylineOverlay = new window.BMap.Polyline(polyPointArray, {
+					strokeColor: '#46ACFF',
+					strokeOpacity: 1,
+					enableClicking: false
+				});
+				//添加新的画线到地图上
+				map.addOverlay(polylineOverlay);
+				//更新上次画线条
+				lastPolyLine = polylineOverlay
+			}
+		})
+	}
+
+	/**
+	 * 根据画的圈，显示相应的marker
+	 * @param {Object} polygon
+	 */
+	function show(polygon){
+		//得到多边形的点数组
+		var pointArray = polygon.getPath();
+		//获取多边形的外包矩形
+		var bound = polygon.getBounds();
+		//在多边形内的点的数组
+		var pointInPolygonArray = [];
+		//计算每个点是否包含在该多边形内
+		for(var i=0;i<thirdlyMkr.length;i++){
+			//该marker的坐标点
+			var markerPoint = thirdlyMkr[i].getPosition();
+			if(isPointInPolygon(markerPoint,bound,pointArray)){
+				map.addOverlay(thirdlyMkr[i])
+			}
+		}
+	}
+	/**
+	 * 根据行政区划绘制聚合点位
+	 * @param {Object} data 数据
+	 * @param {Object} flag 判断是一级点位还是二级,因为一级目前有行政边界，二级目前没有.
+	 *  此处如果二级也需要和链家完全一致，想要行政边界，那么就去链家爬取即可
+	 */
+	function addMarker(data, flag) {
+		map.clearOverlays();
+
+		$.each(data, function(index, data) {
+
+			//如果是一级
+			if(flag) {
+				//绘画行政边界
+				getBoundary(data.name)
+			}
+			var point = new BMap.Point(data.longitude, data.latitude);
+			//自定义label样式
+			var tpl = '<div class="bubble bubble-1" data-longitude="' + data.longitude + '"' +
+				' data-latitude="' + data.latitude + '">' +
+				'<p class="name" title="' + data.name + '">' + data.name + '</p>' +
+				'<p class="count"><span>' + data.count + '</span>套</p>' +
+				'</div>';
+			var myLabel = new BMap.Label(tpl, {
+				position: point, //label 在此处添加点位位置信息
+				offset: new BMap.Size(-42, -42)
+			});
+			myLabel.setStyle({
+				width: "80px", //宽
+				height: "80px", //高度
+				border: "0", //边
+				borderRadius: "80px",
+				background: "#46ACFF", //背景颜色
+				opacity: 0.9,
+				cursor: "pointer",
+				zIndex: 2
+			});
+			myLabel.setTitle(data.name);
+			map.addOverlay(myLabel); //添加点位
+			// 当鼠标悬停在label上时显示行政区划边界
+			myLabel.addEventListener("mouseover", function() {
+				myLabel.setStyle({
+					background: "#E2A76E",
+					zIndex: 4
+				}); //修改覆盖物背景颜色
+				if(flag) {
+					var regionName = myLabel.getTitle();
+					plyAll[regionName].show();
+				}
+			});
+			// 当鼠标离开时在删除边界折线数据
+			myLabel.addEventListener("mouseout", function() {
+				myLabel.setStyle({
+					background: "#46ACFF",
+					zIndex: 2
+				}); //修改覆盖物背景颜色
+				if(flag) {
+					var regionName = myLabel.getTitle();
+					plyAll[regionName].hide();
+				}
+			});
+
+			myLabel.addEventListener("click", function() {
+				let point = myLabel.getPosition()
+				if(flag) {
+					map.centerAndZoom(point, 14);
+				} else {
+					map.centerAndZoom(point, 16);
+				}
+			});
+
+		})
+	}
+
+	/**
+	 * 加载第三级小区数据
+	 * @param {Object} data
+	 */
+	function addLable(data) {
+		map.clearOverlays();
+
+		//首先判断是不是第一次请求
+		if(thirdlyMkr.length<=0){
+			$.each(data, function(index, data) {
+
+				var point = new BMap.Point(data.longitude, data.latitude);
+				//自定义label样式
+				var tpl = '<div class=" bubble-1 ZLQbubble" data-longitude="' + data.longitude + '"' +
+					' data-latitude="' + data.latitude + '">' +
+					'<span class="name" title="' + data.name + '">' + data.name + '</span>&nbsp&nbsp' +
+					'<span class="count"><span>' + data.count + '</span>套</span>' +
+					'</div>';
+				var myLabel = new BMap.Label(tpl, {
+					position: point, //label 在此处添加点位位置信息
+					offset: new BMap.Size(-42, -42)
+				});
+				myLabel.setStyle({
+					height: "22px", //高度
+					lineHeight: "22px",
+					border: "0", //边
+					borderRadius: "2px",
+					background: "#46ACFF", //背景颜色
+					opacity: 0.9,
+					cursor: "pointer",
+					zIndex: 2
+				});
+				myLabel.setTitle(data.name);
+
+				//直接缓存起来
+				thirdlyMkr.push(myLabel);
+				myLabel.addEventListener("mouseover", function() {
+					myLabel.setStyle({
+						background: "#E2A76E",
+						zIndex: 4
+					}); //修改覆盖物背景颜色
+				});
+				myLabel.addEventListener("mouseout", function() {
+					myLabel.setStyle({
+						background: "#46ACFF",
+						zIndex: 2
+					}); //修改覆盖物背景颜色
+				});
+
+				myLabel.addEventListener("click", function() {});
+
+			})
+		}
+
+		//根据视野动态加载
+		addViewLabel(thirdlyMkr)
+	}
+	//根据行政区划绘制边界
+	function getBoundary(regionName) {
+
+		var ply = new BMap.Polygon(area[regionName], {
+			strokeWeight: 1,
+			strokeColor: "#0A77FB",
+			fillColor: "#7EB8FC"
+		}); //建立多边形覆盖物
+		ply.hide();
+		plyAll[regionName] = ply
+		map.addOverlay(ply); //添加覆盖物
+
+	}
+
+	/**
+	 * 根据地图视野动态加载数据，当数据多时此方法用来提高地图加载性能
+	 * 本次模拟数据较少，看不出太大效果
+	 * @param {Object} labels
+	 */
+	function addViewLabel(mkr) {
+		map.clearOverlays();
+		for(var i = 0; i < mkr.length; i++) {
+			var result = isPointInRect(mkr[i].point, map.getBounds());
+			if(result == true) {
+				map.addOverlay(mkr[i])
+			} else {
+				map.removeOverlay(mkr[i]);
+			}
+		}
+	}
+
+	//判断地图视野包含哪些点
+	function isPointInRect(point, bounds) {
+        //检查类型是否正确
+        if (!(point instanceof BMap.Point) ||
+            !(bounds instanceof BMap.Bounds)) {
+            return false;
+        }
+        var sw = bounds.getSouthWest(); //西南脚点
+        var ne = bounds.getNorthEast(); //东北脚点
+        return (point.lng >= sw.lng && point.lng <= ne.lng && point.lat >= sw.lat && point.lat <= ne.lat);
+    }
+
+	//判定一个点是否包含在多边形内
+	function isPointInPolygon(point,bound,pointArray){
+		//首先判断该点是否在外包矩形内，如果不在直接返回false
+		if(!bound.containsPoint(point)){
+			return false;
+		}
+		//如果在外包矩形内则进一步判断
+		//该点往右侧发出的射线和矩形边交点的数量,若为奇数则在多边形内，否则在外
+		var crossPointNum = 0;
+		for(var i=0;i<pointArray.length;i++){
+			//获取2个相邻的点
+			var p1 = pointArray[i];
+			var p2 = pointArray[(i+1)%pointArray.length];
+			//如果点相等直接返回true
+			if((p1.lng===point.lng && p1.lat===point.lat)||(p2.lng===point.lng && p2.lat===point.lat)){
+				return true
+			}
+			//如果point在2个点所在直线的下方则continue
+			if(point.lat < Math.min(p1.lat,p2.lat)){
+				continue;
+			}
+			//如果point在2个点所在直线的上方则continue
+			if(point.lat >= Math.max(p1.lat,p2.lat)){
+				continue;
+			}
+			//有相交情况:2个点一上一下,计算交点
+			//特殊情况2个点的横坐标相同
+			var crossPointLng;
+			if(p1.lng === p2.lng){
+				crossPointLng = p1.lng;
+			}else{
+				//计算2个点的斜率
+				var k = (p2.lat - p1.lat)/(p2.lng - p1.lng);
+				//得出水平射线与这2个点形成的直线的交点的横坐标
+				crossPointLng = (point.lat - p1.lat)/k + p1.lng;
+			}
+			//如果crossPointLng的值大于point的横坐标则算交点(因为是右侧相交)
+			if(crossPointLng > point.lng){
+				crossPointNum++;
+			}
+
+		}
+		//如果是奇数个交点则点在多边形内
+		return crossPointNum%2===1
+	}
+
+</script>

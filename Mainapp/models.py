@@ -10,7 +10,7 @@ class zufang(Document):
     dataDistributionType = IntField(verbose_name='租房类型')
     district = StringField(verbose_name='区县')
     microdistrict = StringField(verbose_name='商圈')
-    community = StringField(verbose_name='校区')
+    community = StringField(verbose_name='小区')
     area = IntField(verbose_name='房屋面积')
     orientation = StringField(verbose_name='朝向')
     houseType = StringField(verbose_name='出租类型')
@@ -29,7 +29,7 @@ class zufang(Document):
     detail_url = URLField(verbose_name='详情页')
 
     def __str__(self):
-        return self.title
+        return self.longitude
 
     class Meta:
         db_table = 'zufang'

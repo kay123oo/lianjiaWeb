@@ -1784,7 +1784,7 @@
 		}
 
 	section.wrapper, article.wrapper {
-		padding: 6em 0;
+		padding: 5em 0;
 	}
 
 		section.wrapper header, article.wrapper header {
@@ -1802,6 +1802,7 @@
 
 		section.wrapper article header, article.wrapper article header {
 			margin: 0;
+			text-align: center;
 		}
 
 		section.wrapper.style1, article.wrapper.style1 {
@@ -1901,12 +1902,16 @@
 	}
 
 		.flex.flex-2 article {
-			width: 47%;
+			width: 100%;
+			margin-bottom:10em;
+		}
+		.flex.flex-2 article2 {
+			width: 50%;
 		}
 
 		.flex.flex-3 article {
 			position: relative;
-			width: 18%;
+			width: 22%;
 		}
 
 			.flex.flex-3 article:before {
@@ -1972,7 +1977,7 @@
 		@media screen and (max-width: 480px) {
 
 			.flex.flex-4 .box {
-				width: 100%;
+				#width: 100%;
 			}
 
 		}
@@ -2274,7 +2279,7 @@
 
 		.image.fit {
 			display: block;
-			margin: 0 0 2em 0;
+			margin: 0 0 0 0;
 			width: 100%;
 		}
 
@@ -2662,6 +2667,7 @@
 		.button.special {
 			background-color: #5385c1;
 			color: #ffffff !important;
+			font-size:0.8em;
 		}
 
 			input[type="submit"].special:hover,
@@ -2724,14 +2730,15 @@
 		}
 
 	#header {
-		color: #d4e0ef;
+		background: #5385c1;
+		#color: #d4e0ef;
 		cursor: default;
 		height: 3.25em;
 		left: 0;
 		line-height: 3.25em;
 		position: absolute;
 		text-align: right;
-		top: 4em;
+		#top: 4em;
 		width: 100%;
 		z-index: 10001;
 	}

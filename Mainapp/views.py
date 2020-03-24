@@ -3,24 +3,54 @@ from django.views import generic
 from .models import zufang
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.cache import cache_page
-from .utils.district_and_microdistrict import DM ,ZH_EN, Cities
+from .utils.district_and_microdistrict import DM ,ZH_EN, Cities,District_border
 from mongoengine.queryset.visitor import Q
 from .utils.Querying import GetQuerying
 import re
 from .utils.find_conditions import SortingWays
 import logging
+from .data_analysis.RentAnalysis import RentAnalysis
 
 
 class IndexView(generic.ListView):
-    template_name = "Mainapp/index2.html"      # 需要渲染的模板
-    context_object_name = "houses"           # 模板中使用的上下文变量
+    template_name = "Mainapp/index2.html"
+    context_object_name = "houses"
 
     def get_queryset(self):
         return zufang.objects.all()[:10]
 
 
+@cache_page(60 * 10)
 def index(request):
-    return render(request, 'Mainapp/base.html')
+    data = {
+        'district_house_count_pie_gz': RentAnalysis.district_house_count('广州').render_embed(),
+        'district_rent_price_gz': RentAnalysis.district_rent_price('广州').render_embed(),
+        'house_type_count_gz': RentAnalysis.house_type_count('广州').render_embed(),
+        'orientation_count_gz': RentAnalysis.orientation_count('广州').render_embed(),
+        'rent_area_count_gz': RentAnalysis.rent_area_count('广州').render_embed(),
+        'microdistrict_price_top10_gz': RentAnalysis.microdistrict_price_top10('广州').render_embed(),
+        'tags_count_bar_gz': RentAnalysis.tags_count_bar('广州').render_embed(),
+        'rent_type_pie_gz': RentAnalysis.rent_type_pie('广州').render_embed(),
+
+        'district_house_count_pie_sz': RentAnalysis.district_house_count('深圳').render_embed(),
+        'district_rent_price_sz': RentAnalysis.district_rent_price('深圳').render_embed(),
+        'house_type_count_sz': RentAnalysis.house_type_count('深圳').render_embed(),
+        'orientation_count_sz': RentAnalysis.orientation_count('深圳').render_embed(),
+        'rent_area_count_sz': RentAnalysis.rent_area_count('深圳').render_embed(),
+        'microdistrict_price_top10_sz': RentAnalysis.microdistrict_price_top10('深圳').render_embed(),
+        'tags_count_bar_sz': RentAnalysis.tags_count_bar('深圳').render_embed(),
+        'rent_type_pie_sz': RentAnalysis.rent_type_pie('深圳').render_embed(),
+
+        'district_house_count_pie_sh': RentAnalysis.district_house_count('上海').render_embed(),
+        'district_rent_price_sh': RentAnalysis.district_rent_price('上海').render_embed(),
+        'house_type_count_sh': RentAnalysis.house_type_count('上海').render_embed(),
+        'orientation_count_sh': RentAnalysis.orientation_count('上海').render_embed(),
+        'rent_area_count_sh': RentAnalysis.rent_area_count('上海').render_embed(),
+        'microdistrict_price_top10_sh': RentAnalysis.microdistrict_price_top10('上海').render_embed(),
+        'tags_count_bar_sh': RentAnalysis.tags_count_bar('上海').render_embed(),
+        'rent_type_pie_sh': RentAnalysis.rent_type_pie('上海').render_embed(),
+    }
+    return render(request, 'Mainapp/base.html', data)
 
 
 @cache_page(60 * 10)
@@ -97,7 +127,11 @@ def get_by_conditions(request,  conditions, city, district="", microdistrict="")
     return render(request, 'Mainapp/index2.html', data)
 
 
-def get_return_data(city, district=None, microdistrict=None, page=None, resQ=None, sort_by=2):
+def get_return_data(city, district=None,
+                    microdistrict=None,
+                    page=None,
+                    resQ=None,
+                    sort_by=2):
     city_zh = Cities.get(city)
     district_zh = ZH_EN.get(district)
     microdistrict_zh = ZH_EN.get(microdistrict)
@@ -143,6 +177,54 @@ def get_return_data(city, district=None, microdistrict=None, page=None, resQ=Non
         'districts': districts
     }
     return data
+
+
+@cache_page(60 * 1000)
+def find_by_map(request, city):
+    firstData = []
+    secondData = []
+    thirdlyData = []
+    city_zh = Cities.get(city)
+    for district in DM.get(city_zh):
+        first_data_list = zufang.objects(district=district)
+        first_data_item = {}
+        first_data_item['name'] = district
+        first_data_item['longitude'] = first_data_list[0]['longitude']
+        first_data_item['longitude'] = first_data_list[0]['longitude']
+        first_data_item['latitude'] = first_data_list[0]['latitude']
+        first_data_item['latitude'] = first_data_list[0]['latitude']
+        first_data_item['count'] = str(first_data_list.count())
+        microdistricts = DM.get(district)
+        if microdistricts:
+            for microdistrict in microdistricts:
+                second_data_item = {}
+                second_data_list = zufang.objects(microdistrict=microdistrict)
+                second_data_item['name'] = microdistrict
+                second_data_item['longitude'] = second_data_list[0]['longitude']
+                second_data_item['latitude'] = second_data_list[0]['latitude']
+                second_data_item['count'] = str(second_data_list.count())
+                communities = second_data_list.distinct('community')
+                for community in communities:
+                    third_data_list = zufang.objects(community=community)
+                    third_data_item = {}
+                    third_data_item['name'] = community
+                    third_data_item['longitude'] = third_data_list[0]['longitude']
+                    third_data_item['latitude'] = third_data_list[0]['latitude']
+                    third_data_item['count'] = third_data_list.count()
+                    thirdlyData.append(third_data_item)
+                secondData.append(second_data_item)
+        firstData.append(first_data_item)
+    data = {
+        "firstData": firstData,
+        "secondData": secondData,
+        "thirdlyData": thirdlyData,
+        "area": District_border.get(city)
+    }
+    return render(request, 'Mainapp/map.html', data)
+
+
+
+
 
 
 

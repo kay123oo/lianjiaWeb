@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>Home</title>
+<title>北上广深链家租房信息爬虫可视化</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" href="../../static/Mainapp/css/main.css" />
@@ -11,17 +11,11 @@
 <!-- Header -->
 <header id="header">
 	<div class="inner">
-		<a href="" class="logo">HOME</a>
+		<a href="" class="logo">北上广深链家租房信息爬虫可视化</a>
 
 		<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
 	</div>
 </header>
-
-<!-- Banner -->
-<section id="banner">
-	<h1>基于网络爬虫的房产信息获取及可视化</h1>
-	<p></p>
-</section>
 
 <!-- One -->
 <section id="one" class="wrapper">
@@ -33,7 +27,9 @@
 				</header>
 				<p></p>
 				<footer>
-					<a href="/bj/" class="button special">More</a>
+					<a href="/bj/" class="button special">查询</a>
+                    <a href="#threebj" class="button special">可视化</a>
+                    <a href="#threebj" class="button special">地图找房</a>
 				</footer>
 			</article>
 			<article>
@@ -42,7 +38,9 @@
 				</header>
 				<p></p>
 				<footer>
-					<a href="/sh/" class="button special">More</a>
+					<a href="/sh/" class="button special">查询</a>
+					<a href="#threesh" class="button special">可视化</a>
+                    <a href="#threebj" class="button special">地图找房</a>
 				</footer>
 			</article>
 			<article>
@@ -51,7 +49,9 @@
 				</header>
 				<p></p>
 				<footer>
-					<a href="/gz/" class="button special">More</a>
+					<a href="/gz/" class="button special">查询</a>
+					<a href="#threegz" class="button special">可视化</a>
+                    <a href="#threebj" class="button special">地图找房</a>
 				</footer>
 			</article>
 			<article>
@@ -60,7 +60,9 @@
 				</header>
 				<p></p>
 				<footer>
-					<a href="/sz/" class="button special">More</a>
+					<a href="/sz/" class="button special">查询</a>
+					<a href="#threesz" class="button special">可视化</a>
+                    <a href="#threebj" class="button special">地图找房</a>
 				</footer>
 			</article>
 			
@@ -68,78 +70,342 @@
 	</div>
 </section>
 
-<!-- Two -->
-<section id="two" class="wrapper style1 special">
-	<div class="inner">
-		<header>
-			<h2>Ipsum Feugiat</h2>
-			<p>Semper suscipit posuere apede</p>
-		</header>
-		<div class="flex flex-4">
-			<div class="box person">
-				<div class="image round">
-					<img src="../../static/Mainapp/images/pic03.jpg" alt="Person 1" />
-				</div>
-				<h3>Magna</h3>
-				<p>Cipdum dolor</p>
-			</div>
-			<div class="box person">
-				<div class="image round">
-					<img src="../../static/Mainapp/images/pic04.jpg" alt="Person 2" />
-				</div>
-				<h3>Ipsum</h3>
-				<p>Vestibulum comm</p>
-			</div>
-			<div class="box person">
-				<div class="image round">
-					<img src="../../static/Mainapp/images/pic05.jpg" alt="Person 3" />
-				</div>
-				<h3>Tempus</h3>
-				<p>Fusce pellentes</p>
-			</div>
-			<div class="box person">
-				<div class="image round">
-					<img src="../../static/Mainapp/images/pic06.jpg" alt="Person 4" />
-				</div>
-				<h3>Dolore</h3>
-				<p>Praesent placer</p>
-			</div>
-		</div>
-	</div>
-</section>
-
-<!-- Three -->
-<section id="three" class="wrapper special">
+<!-- 广州 -->
+<section id="threegz"  class="wrapper special">
 	<div class="inner">
 		<header class="align-center">
-			<h2>Nunc Dignissim</h2>
-			<p>Aliquam erat volutpat nam dui </p>
+			<h2>广州</h2>
+			<p>数据统计时间：2020-03-24 </p>
 		</header>
 		<div class="flex flex-2">
 			<article>
 				<div class="image fit">
-					<img src="../../static/Mainapp/images/pic01.jpg" alt="Pic 01" />
-				</div>
+              {% if district_house_count_pie_gz %}{{ district_house_count_pie_gz|safe }} {% endif %}
+                </div>
 				<header>
-					<h3>Praesent placerat magna</h3>
+
 				</header>
-				<p>Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor lorem ipsum.</p>
-				<footer>
-					<a href="#" class="button special">More</a>
-				</footer>
+
 			</article>
 			<article>
 				<div class="image fit">
-					<img src="../../static/Mainapp/images/pic02.jpg" alt="Pic 02" />
+              {% if district_rent_price_gz %}{{ district_rent_price_gz|safe }} {% endif %}
 				</div>
 				<header>
-					<h3>Fusce pellentesque tempus</h3>
+
 				</header>
-				<p>Sed adipiscing ornare risus. Morbi est est, blandit sit amet, sagittis vel, euismod vel, velit. Pellentesque egestas sem. Suspendisse commodo ullamcorper magna non comodo sodales tempus.</p>
-				<footer>
-					<a href="#" class="button special">More</a>
-				</footer>
+
 			</article>
+            <article>
+				<div class="image fit">
+              {% if house_type_count_gz %}{{ house_type_count_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article2>
+				<div class="image fit">
+              {% if orientation_count_gz %}{{ orientation_count_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+            <article2>
+				<div class="image fit">
+              {% if rent_type_pie_gz %}{{ rent_type_pie_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+                    <article>
+				<div class="image fit">
+              {% if rent_area_count_gz %}{{ rent_area_count_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if microdistrict_price_top10_gz %}{{ microdistrict_price_top10_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if tags_count_bar_gz %}{{ tags_count_bar_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+
+		</div>
+	</div>
+</section>
+
+<!-- 深圳 -->
+<section id="threesz"  class="wrapper special">
+	<div class="inner">
+		<header class="align-center">
+			<h2>深圳</h2>
+			<p>数据统计时间：2020-03-24 </p>
+		</header>
+		<div class="flex flex-2">
+			<article>
+				<div class="image fit">
+              {% if district_house_count_pie_sz %}{{ district_house_count_pie_sz|safe }} {% endif %}
+                </div>
+				<header>
+
+				</header>
+
+			</article>
+			<article>
+				<div class="image fit">
+              {% if district_rent_price_sz %}{{ district_rent_price_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article>
+				<div class="image fit">
+              {% if house_type_count_sz %}{{ house_type_count_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article2>
+				<div class="image fit">
+              {% if orientation_count_sz %}{{ orientation_count_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+            <article2>
+				<div class="image fit">
+              {% if rent_type_pie_sz %}{{ rent_type_pie_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+                    <article>
+				<div class="image fit">
+              {% if rent_area_count_sz %}{{ rent_area_count_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if microdistrict_price_top10_sz %}{{ microdistrict_price_top10_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if tags_count_bar_sz %}{{ tags_count_bar_sz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+
+		</div>
+	</div>
+</section>
+
+<!-- 北京 -->
+<section id="threebj"  class="wrapper special">
+	<div class="inner">
+		<header class="align-center">
+			<h2>北京</h2>
+			<p>数据统计时间：2020-03-24 </p>
+		</header>
+		<div class="flex flex-2">
+			<article>
+				<div class="image fit">
+              {% if district_house_count_pie_gz %}{{ district_house_count_pie_gz|safe }} {% endif %}
+                </div>
+				<header>
+
+				</header>
+
+			</article>
+			<article>
+				<div class="image fit">
+              {% if district_rent_price_gz %}{{ district_rent_price_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article>
+				<div class="image fit">
+              {% if house_type_count_gz %}{{ house_type_count_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article2>
+				<div class="image fit">
+              {% if orientation_count_gz %}{{ orientation_count_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+            <article2>
+				<div class="image fit">
+              {% if rent_type_pie_gz %}{{ rent_type_pie_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+                    <article>
+				<div class="image fit">
+              {% if rent_area_count_gz %}{{ rent_area_count_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if microdistrict_price_top10_gz %}{{ microdistrict_price_top10_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if tags_count_bar_gz %}{{ tags_count_bar_gz|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+
+		</div>
+	</div>
+</section>
+
+<!-- 上海 -->
+<section id="threesh"  class="wrapper special">
+	<div class="inner">
+		<header class="align-center">
+			<h2>上海</h2>
+			<p>数据统计时间：2020-03-24 </p>
+		</header>
+		<div class="flex flex-2">
+			<article>
+				<div class="image fit">
+              {% if district_house_count_pie_sh %}{{ district_house_count_pie_sh|safe }} {% endif %}
+                </div>
+				<header>
+
+				</header>
+
+			</article>
+			<article>
+				<div class="image fit">
+              {% if district_rent_price_sh %}{{ district_rent_price_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article>
+				<div class="image fit">
+              {% if house_type_count_sh %}{{ house_type_count_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+            <article2>
+				<div class="image fit">
+              {% if orientation_count_sh %}{{ orientation_count_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+            <article2>
+				<div class="image fit">
+              {% if rent_type_pie_sh %}{{ rent_type_pie_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article2>
+                    <article>
+				<div class="image fit">
+              {% if rent_area_count_sh %}{{ rent_area_count_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if microdistrict_price_top10_sh %}{{ microdistrict_price_top10_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+                    <article>
+				<div class="image fit">
+              {% if tags_count_bar_sh %}{{ tags_count_bar_sh|safe }} {% endif %}
+				</div>
+				<header>
+
+				</header>
+
+			</article>
+
 		</div>
 	</div>
 </section>
