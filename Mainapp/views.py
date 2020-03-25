@@ -3,7 +3,7 @@ from django.views import generic
 from .models import zufang
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.cache import cache_page
-from .utils.district_and_microdistrict import DM ,ZH_EN, Cities,District_border
+from .utils.district_and_microdistrict import DM ,ZH_EN, Cities,District_border, City_Center_Point
 from mongoengine.queryset.visitor import Q
 from .utils.Querying import GetQuerying
 import re
@@ -20,7 +20,7 @@ class IndexView(generic.ListView):
         return zufang.objects.all()[:10]
 
 
-@cache_page(60 * 10)
+@cache_page(60 * 100)
 def index(request):
     data = {
         'district_house_count_pie_gz': RentAnalysis.district_house_count('广州').render_embed(),
@@ -179,47 +179,14 @@ def get_return_data(city, district=None,
     return data
 
 
-@cache_page(60 * 1000)
+@cache_page(60 * 100)
 def find_by_map(request, city):
-    firstData = []
-    secondData = []
-    thirdlyData = []
     city_zh = Cities.get(city)
-    for district in DM.get(city_zh):
-        first_data_list = zufang.objects(district=district)
-        first_data_item = {}
-        first_data_item['name'] = district
-        first_data_item['longitude'] = first_data_list[0]['longitude']
-        first_data_item['longitude'] = first_data_list[0]['longitude']
-        first_data_item['latitude'] = first_data_list[0]['latitude']
-        first_data_item['latitude'] = first_data_list[0]['latitude']
-        first_data_item['count'] = str(first_data_list.count())
-        microdistricts = DM.get(district)
-        if microdistricts:
-            for microdistrict in microdistricts:
-                second_data_item = {}
-                second_data_list = zufang.objects(microdistrict=microdistrict)
-                second_data_item['name'] = microdistrict
-                second_data_item['longitude'] = second_data_list[0]['longitude']
-                second_data_item['latitude'] = second_data_list[0]['latitude']
-                second_data_item['count'] = str(second_data_list.count())
-                communities = second_data_list.distinct('community')
-                for community in communities:
-                    third_data_list = zufang.objects(community=community)
-                    third_data_item = {}
-                    third_data_item['name'] = community
-                    third_data_item['longitude'] = third_data_list[0]['longitude']
-                    third_data_item['latitude'] = third_data_list[0]['latitude']
-                    third_data_item['count'] = third_data_list.count()
-                    thirdlyData.append(third_data_item)
-                secondData.append(second_data_item)
-        firstData.append(first_data_item)
-    data = {
-        "firstData": firstData,
-        "secondData": secondData,
-        "thirdlyData": thirdlyData,
-        "area": District_border.get(city)
-    }
+    data = RentAnalysis.map_count(city_zh)
+    data['area'] = District_border.get(city)
+    data['city_log'] = City_Center_Point.get(city)[0]
+    data['city_lat'] = City_Center_Point.get(city)[1]
+    RentAnalysis.map_count(city_zh)
     return render(request, 'Mainapp/map.html', data)
 
 

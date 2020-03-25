@@ -1,10 +1,10 @@
 
-   # microdistricts = zufang.objects.item_frequencies("microdistrict").keys()
-   # for microdistrict in microdistricts:
-   #     en = pinyin(microdistrict)
-   #     ZH_EN[en] = microdistrict
-   #     res = str("\'{}\':\'{}\',").format(en,microdistrict)
-   #     print(res)
+    #microdistricts = zufang.objects.item_frequencies("microdistrict").keys()
+    #for microdistrict in microdistricts:
+    #    en = pinyin(microdistrict)
+    #    ZH_EN[en] = microdistrict
+    #    res = str("\'{}\' : \'{}\',").format(en,microdistrict)
+    #    print(res)
 
 
 import re

@@ -274,6 +274,40 @@ class RentAnalysis(object):
         )
         return pie
 
+    # 获取城区、商圈、小区房源数量
+    def map_count(self, city):
+        temp = self.lianjia_df[self.lianjia_df['city'] == city]
+        temp.dropna(subset=['longitude', 'latitude'])
+        district_counter = temp.groupby('district').head(1)
+        count = temp.groupby('district')['price'].count().astype("str")
+        district_counter = district_counter.loc[:, ['district', 'longitude', 'latitude']]
+        firstData = pd.merge(district_counter, count, on='district')
+        firstData.rename(columns={'price': 'count'}, inplace=True)
+        firstData.rename(columns={'district': 'name'}, inplace=True)
+        firstData = firstData.to_dict(orient='records')
+
+        microdistrict_counter = temp.groupby('microdistrict').head(1)
+        count2 = temp.groupby('microdistrict')['price'].count().astype("str")
+        microdistrict_counter = microdistrict_counter.loc[:, ['microdistrict', 'longitude', 'latitude']]
+        secondData = pd.merge(microdistrict_counter, count2, on='microdistrict')
+        secondData.rename(columns={'price': 'count'}, inplace=True)
+        secondData.rename(columns={'microdistrict': 'name'}, inplace=True)
+        secondData = secondData.to_dict(orient='records')
+
+        community_counter = temp.groupby('community').head(1)
+        count3 = temp.groupby('community')['price'].count().astype("str")
+        community_counter = community_counter.loc[:, ['community', 'longitude', 'latitude']]
+        thirdData = pd.merge(community_counter, count3, on='community')
+        thirdData.rename(columns={'price': 'count'}, inplace=True)
+        thirdData.rename(columns={'community': 'name'}, inplace=True)
+        thirdData = thirdData.to_dict(orient='records')
+        data = {
+            "firstData": firstData,
+            "secondData": secondData,
+            "thirdlyData": thirdData,
+        }
+        return data
+
 
 RentAnalysis = RentAnalysis()
 

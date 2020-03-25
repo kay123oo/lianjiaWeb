@@ -4,12 +4,132 @@
 	<head>
 		<meta charset="UTF-8">
 		<title></title>
-		<style>
-
-		</style>
+        <!--<link rel="stylesheet" href="../../static/Mainapp/css/main.css" />-->
 		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=t7KGv4HrfrU9sRY3KjpRmd8qF1q8tHd0"></script>
 		<script src="../../static/Mainapp/js/map_jquery.js"></script>
+        <style>
+            /* Header */
 
+	.subpage {
+		padding-top: 44px;
+	}
+
+		.subpage #header {
+			background: #5385c1;
+			top: 0;
+			height: 44px;
+			line-height: 44px;
+			position: fixed;
+		}
+
+	#header {
+		background: #5385c1;
+		#color: #d4e0ef;
+		cursor: default;
+		height: 3.25em;
+		left: 0;
+		line-height: 3.25em;
+		position: absolute;
+		text-align: right;
+		#top: 4em;
+		width: 100%;
+		z-index: 10001;
+	}
+
+		#header .inner {
+			margin: 0 auto;
+			position: relative;
+		}
+
+		#header .logo {
+			color: #ffffff;
+			display: inline-block;
+			font-weight: 600;
+			height: inherit;
+			left: 30px;
+			line-height: inherit;
+			margin: 0;
+			padding: 0;
+			position: absolute;
+			top: 0;
+			font-size: 1em;
+		}
+
+		#header a {
+			-moz-transition: color 0.2s ease-in-out;
+			-webkit-transition: color 0.2s ease-in-out;
+			-ms-transition: color 0.2s ease-in-out;
+			transition: color 0.2s ease-in-out;
+			display: inline-block;
+			padding: 0 0.75em;
+			color: inherit;
+			text-decoration: none;
+			font-size: .8em;
+		}
+
+			#header a:hover {
+				color: #ffffff;
+			}
+
+			#header a:last-child {
+				padding-right: 0;
+			}
+
+			#header a.navPanelToggle {
+				display: none;
+				text-decoration: none;
+				height: 4em;
+				width: 4em;
+				z-index: 10003;
+			}
+
+				#header a.navPanelToggle .fa {
+					font-size: 1.25em;
+				}
+
+				@media screen and (max-width: 980px) {
+
+					#header a.navPanelToggle {
+						display: inline-block;
+					}
+
+				}
+
+			@media screen and (max-width: 736px) {
+
+				#header a {
+					padding: 0 0.5em;
+				}
+
+			}
+
+	@media screen and (max-width: 980px) {
+
+		#header {
+			top: 3em;
+			height: 44px;
+			line-height: 44px;
+		}
+
+	}
+
+	@media screen and (max-width: 736px) {
+
+		#header {
+			top: 2em;
+		}
+
+	}
+
+	@media screen and (max-width: 480px) {
+
+		#header {
+			top: 1em;
+			min-width: 320px;
+		}
+
+	}
+        </style>
         <style>
         *{
             padding: 0;
@@ -59,21 +179,21 @@
         }
         .drawing , .exit{
         	position: absolute;
-        	top: 10px;
-        	left: 1300px;
-        	background: #00a65b;
+        	top: 60px;
+        	left: 900px;
+        	background: #5384c0;
         	border: 0px;
         	color: white;
         	width: 100px;
-        	height: 100px;
+        	height: 50px;
         	line-height: 25px;
         	font-size: 15px;
         	font-weight: bold;
-        	border-radius: 15px;
+        	border-radius: 10px;
         	outline:none;
         }
         .exit{
-        	left: 1410px;
+        	left: 1010px;
         }
         .houseList.active {
     left: 0;
@@ -82,6 +202,14 @@
 	</head>
 
 	<body>
+    <!-- Header -->
+<header id="header">
+	<div class="inner">
+		<a href="" class="logo">北上广深链家租房信息爬虫可视化</a>
+
+		<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+	</div>
+</header>
 		<div id="allMap">
 		</div>
 		<button class="drawing" id="draw">画圈找房</button>
@@ -98,6 +226,7 @@
     var firstData = {{ firstData|safe }};
     var secondData = {{ secondData|safe }};
     var thirdlyData = {{ thirdlyData|safe }};
+
 
 	//是否处于画圈状态下
 	var isInDrawing = false;
@@ -118,7 +247,7 @@
 	addMarker(firstData, true)
 
 	//搜索二级数据坐标  --此处搜索只是为了方便，如果项目实际用那就提前将坐标爬取下来
-	searchCoord(secondData)
+	//searchCoord(secondData)
 	//搜索三级数据坐标
 	//searchCoord(thirdlyData)
 
@@ -128,9 +257,9 @@
 	function initMap() {
 		map = new BMap.Map("allMap", {
 			enableMapClick: false,
-			minZoom: 10
+			minZoom: 11
 		}); // 创建Map实例
-		map.centerAndZoom(new BMap.Point(121.329036, 31.242103), 12); // 初始化地图,设置中心点坐标和地图级别
+		map.centerAndZoom(new BMap.Point({{ city_log }}, {{ city_lat }}), 12); // 初始化地图,设置中心点坐标和地图级别
 		map.enableScrollWheelZoom(true);
 		//监听地图级别缩放事件，当级别为9时默认加载集合点，扩大级别时显示详细点位数据
 		map.addEventListener("zoomend", function() {
