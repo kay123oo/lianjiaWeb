@@ -2,7 +2,8 @@ from .find_conditions import *
 from mongoengine.queryset.visitor import Q
 
 
-class GetQuerying():
+class GetQuerying(object):
+
     def getQ_by_rp(self, prices):
         resQ = Q()
         for price in prices:
@@ -21,7 +22,6 @@ class GetQuerying():
             elif int(price) == PriceConditions.PRICE_06.value:
                 resQ = resQ | (Q(price__gte=5000))
         return resQ
-
 
     def getQ_by_house_tyoe(self, houseTypes):
         resQ = Q()
@@ -93,4 +93,4 @@ class GetQuerying():
         return resQ
 
 
-GetQuerying=GetQuerying()
+GetQuerying = GetQuerying()

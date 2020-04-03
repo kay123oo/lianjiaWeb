@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index),
+    path('ditu/<str:community>', views.ajax_update, name='ajax-list'),
     path('<str:city>/', views.group_by_city),
     path('<str:city>/ditu', views.find_by_map),
     re_path('^(?P<city>[a-z]{2})\/(?P<conditions>[a-z0-9]+[0-9]{1})\/', views.get_by_conditions),

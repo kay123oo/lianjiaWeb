@@ -4,218 +4,61 @@
 	<head>
 		<meta charset="UTF-8">
 		<title></title>
-        <!--<link rel="stylesheet" href="../../static/Mainapp/css/main.css" />-->
+        <link rel="stylesheet" href="../../static/Mainapp/css/map_style.css" />
 		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=t7KGv4HrfrU9sRY3KjpRmd8qF1q8tHd0"></script>
 		<script src="../../static/Mainapp/js/map_jquery.js"></script>
-        <style>
-            /* Header */
-
-	.subpage {
-		padding-top: 44px;
-	}
-
-		.subpage #header {
-			background: #5385c1;
-			top: 0;
-			height: 44px;
-			line-height: 44px;
-			position: fixed;
-		}
-
-	#header {
-		background: #5385c1;
-		#color: #d4e0ef;
-		cursor: default;
-		height: 3.25em;
-		left: 0;
-		line-height: 3.25em;
-		position: absolute;
-		text-align: right;
-		#top: 4em;
-		width: 100%;
-		z-index: 10001;
-	}
-
-		#header .inner {
-			margin: 0 auto;
-			position: relative;
-		}
-
-		#header .logo {
-			color: #ffffff;
-			display: inline-block;
-			font-weight: 600;
-			height: inherit;
-			left: 30px;
-			line-height: inherit;
-			margin: 0;
-			padding: 0;
-			position: absolute;
-			top: 0;
-			font-size: 1em;
-		}
-
-		#header a {
-			-moz-transition: color 0.2s ease-in-out;
-			-webkit-transition: color 0.2s ease-in-out;
-			-ms-transition: color 0.2s ease-in-out;
-			transition: color 0.2s ease-in-out;
-			display: inline-block;
-			padding: 0 0.75em;
-			color: inherit;
-			text-decoration: none;
-			font-size: .8em;
-		}
-
-			#header a:hover {
-				color: #ffffff;
-			}
-
-			#header a:last-child {
-				padding-right: 0;
-			}
-
-			#header a.navPanelToggle {
-				display: none;
-				text-decoration: none;
-				height: 4em;
-				width: 4em;
-				z-index: 10003;
-			}
-
-				#header a.navPanelToggle .fa {
-					font-size: 1.25em;
-				}
-
-				@media screen and (max-width: 980px) {
-
-					#header a.navPanelToggle {
-						display: inline-block;
-					}
-
-				}
-
-			@media screen and (max-width: 736px) {
-
-				#header a {
-					padding: 0 0.5em;
-				}
-
-			}
-
-	@media screen and (max-width: 980px) {
-
-		#header {
-			top: 3em;
-			height: 44px;
-			line-height: 44px;
-		}
-
-	}
-
-	@media screen and (max-width: 736px) {
-
-		#header {
-			top: 2em;
-		}
-
-	}
-
-	@media screen and (max-width: 480px) {
-
-		#header {
-			top: 1em;
-			min-width: 320px;
-		}
-
-	}
-        </style>
-        <style>
-        *{
-            padding: 0;
-            margin: 0;
-        }
-        body,html {
-			width: 100%;
-			height: 100%;
-			margin: 0;
-			font-family: "微软雅黑";
-		}
-
-		#allMap {
-			height: 100%;
-			width: 100%;
-		}
-        /*隐藏地图控件*/
-        .anchorBL, .BMap_cpyCtrl {
-            display: none;
-        }
-        /*地图聚合样式*/
-        .bubble p {
-        	width: 80px;
-        	line-height: 20px;
-            text-align: center;
-            color: #fff;
-            font-size: 14px;
-        }
-        .bubble .name {
-			margin-top: 20px;
-        }
-        .bubble .count {
-			// margin-top: -10px;
-        }
-        .ZLQbubble{
-			text-align: center;
-			padding: 0px 5px;
-        }
-        .ZLQbubble span{
-        	height: 22px; //高度
-        	line-height: 22px;
-        	color: #fff;
-            font-size: 14px;
-        }
-        .ZLQbubble .count{
-        	font-weight: bold;
-        }
-        .drawing , .exit{
-        	position: absolute;
-        	top: 60px;
-        	left: 900px;
-        	background: #5384c0;
-        	border: 0px;
-        	color: white;
-        	width: 100px;
-        	height: 50px;
-        	line-height: 25px;
-        	font-size: 15px;
-        	font-weight: bold;
-        	border-radius: 10px;
-        	outline:none;
-        }
-        .exit{
-        	left: 1010px;
-        }
-        .houseList.active {
-    left: 0;
-}
-    </style>
 	</head>
 
 	<body>
     <!-- Header -->
 <header id="header">
 	<div class="inner">
-		<a href="" class="logo">北上广深链家租房信息爬虫可视化</a>
+		<a href="/" class="logo">北上广深链家租房信息爬虫可视化</a>
 
 		<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
 	</div>
 </header>
-		<div id="allMap">
-		</div>
-		<button class="drawing" id="draw">画圈找房</button>
-		<button class="exit" id="exit">退出画圈</button>
-<script type="text/javascript">
+    <div id="allMap">
+    </div>
 
+    <div class="aside">
+        <!--<div id="input_loc">
+            <input id="work-location" type="text">
+        </div>-->
+        <div id="input_loc">请输入:<input type="text" id="suggestId" size="20" value="输入工作地点" /></div>
+	    <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;">
+        </div>
+
+        <div class="control-entry">
+            <label>选择通勤方式：</label>
+            <div class="control-input">
+                <input type="radio" name="vehicle" value="WALK" onclick ="drivingWay(1)" checked/> 步行
+                <input type="radio" name="vehicle" value="SUBWAY" onclick ="drivingWay(2)" /> 公交地铁
+                <input type="radio" name="vehicle" value="DRIVE" onclick ="drivingWay(3)" /> 自驾
+            </div>
+        </div>
+
+        <div class="control-entry">
+            <label>选择租房范围：</label>
+            <div class="control-input">
+                <input type="radio" name="time" value="3" onClick="commutingScope(3000)" checked/> 三公里内
+                <input type="radio" name="time" value="6" onClick="commutingScope(5000)" /> 五公里内
+                <input type="radio" name="time" value="10" onClick="commutingScope(7000)" /> 七公里内
+            </div>
+        </div>
+
+    </div> <!-- end with control-entry -->
+
+    <div id="r-result"></div>
+
+    <button class="drawing" id="draw">画圈找房</button>
+    <button class="exit" id="exit">退出画圈</button>
+        <div id="test_panel" style="width:150px;height:150px; padding-left: 150px;position:absolute;top: 450px;
+    background-color: beige;">
+            测试面板
+            <p></p>
+        </div>
+<script type="text/javascript">
 
 	var map = null;
 	//所有行政边界
@@ -241,18 +84,27 @@
 	var drawBtn = document.getElementById("draw");
 	var exitBtn = document.getElementById("exit");
 
+	//通勤规划
+    var vehicle = "WALK";
+    var workScope = 3000;
+    var workMode = 0;
+    var myDriving;
+    var RouteMarker = []; // 路线、工作地点
+    var Circle;
+    var WorkLoc;
+    var FirstMarkers = [];
+    var SecondMarkers = [];
+    var myValue; //工作地点
+	var currentEndTitle; // 所选小区
+
+
 	//初始化地图
 	initMap()
 	//初始化一级数据
 	addMarker(firstData, true)
 
-	//搜索二级数据坐标  --此处搜索只是为了方便，如果项目实际用那就提前将坐标爬取下来
-	//searchCoord(secondData)
-	//搜索三级数据坐标
-	//searchCoord(thirdlyData)
-
 	//初始化画圈找房
-	drawing();
+	//drawing();
 
 	function initMap() {
 		map = new BMap.Map("allMap", {
@@ -261,43 +113,39 @@
 		}); // 创建Map实例
 		map.centerAndZoom(new BMap.Point({{ city_log }}, {{ city_lat }}), 12); // 初始化地图,设置中心点坐标和地图级别
 		map.enableScrollWheelZoom(true);
+
 		//监听地图级别缩放事件，当级别为9时默认加载集合点，扩大级别时显示详细点位数据
 		map.addEventListener("zoomend", function() {
-			var zoomLevel = map.getZoom(); //获取地图缩放级别
-			if(zoomLevel <= 13) {
-				addMarker(firstData, true);
-			} else if(zoomLevel > 13 && zoomLevel <= 15) {
-				addMarker(secondData, false);
-			} else if(zoomLevel > 15) {
-				addLable(thirdlyData)
-			}
+            var zoomLevel = map.getZoom(); //获取地图缩放级别
+            if(zoomLevel <= 13 )
+                {
+                    addMarker(firstData, true);
+                    if(workMode==1){
+                        alert("请放大到三级数据，重新输入工作地点");
+                        document.getElementById('suggestId').value = ""
+                        workMode=0;
+                        currentWorkPoint=null;
+                        currentEndTitle=null;
+                    }
+                }
+            else if(zoomLevel > 12 && zoomLevel <= 14 && workMode==0)
+                {addMarker(secondData, false);}
+            else if(zoomLevel > 14 && workMode==0)
+                { addLable(thirdlyData)}
+            printTest(zoomLevel)
 		});
 
 		//监听地图移动,根据视野动态加载
 		map.addEventListener("moveend", function() {
 			var zoomLevel = map.getZoom(); //获取地图缩放级别
-			if(zoomLevel > 15) {
-				addLable(thirdlyData)
-			}
+            if(zoomLevel > 14 && workMode==0){
+                addLable(thirdlyData)
+            }
 		});
+
 	}
 
-	/**
-	 * 查找坐标
-	 * @param {Object} data
-	 */
-	function searchCoord(data) {
-		var localSearch = new BMap.LocalSearch(map);
-		for(key in data) {
-			localSearch.search(key);
-			localSearch.setSearchCompleteCallback((searchResult) => {
-				var k = searchResult.keyword;
-				var poi = searchResult.getPoi(0);
-				data[k].longitude = poi.point.lng;
-				data[k].latitude = poi.point.lat;
-			});
-		}
-	}
+
 	//绑定按钮事件
 	function drawing() {
 		//开始画圈绑定事件
@@ -392,12 +240,17 @@
 	 * @param {Object} polygon
 	 */
 	function show(polygon){
+	    map.clearOverlays(); //先清除其他覆盖物，再添加圈内覆盖物
 		//得到多边形的点数组
 		var pointArray = polygon.getPath();
 		//获取多边形的外包矩形
 		var bound = polygon.getBounds();
 		//在多边形内的点的数组
 		var pointInPolygonArray = [];
+		if (thirdlyMkr.length<=0){
+		    addLable(thirdlyData);
+        }
+
 		//计算每个点是否包含在该多边形内
 		for(var i=0;i<thirdlyMkr.length;i++){
 			//该marker的坐标点
@@ -411,7 +264,6 @@
 	 * 根据行政区划绘制聚合点位
 	 * @param {Object} data 数据
 	 * @param {Object} flag 判断是一级点位还是二级,因为一级目前有行政边界，二级目前没有.
-	 *  此处如果二级也需要和链家完全一致，想要行政边界，那么就去链家爬取即可
 	 */
 	function addMarker(data, flag) {
 		map.clearOverlays();
@@ -474,7 +326,7 @@
 				if(flag) {
 					map.centerAndZoom(point, 14);
 				} else {
-					map.centerAndZoom(point, 16);
+                    map.centerAndZoom(point, 16);
 				}
 			});
 
@@ -486,58 +338,64 @@
 	 * @param {Object} data
 	 */
 	function addLable(data) {
-		map.clearOverlays();
+        map.clearOverlays();
 
-		//首先判断是不是第一次请求
-		if(thirdlyMkr.length<=0){
-			$.each(data, function(index, data) {
+        //首先判断是不是第一次请求
+        if (thirdlyMkr.length <= 0 ) {
+            $.each(data, function (index, data) {
+                var point = new BMap.Point(data.longitude, data.latitude);
+                //自定义label样式
+                var tpl = '<div class=" bubble-1 ZLQbubble" data-longitude="' + data.longitude + '"' +
+                    ' data-latitude="' + data.latitude + '">' +
+                    '<span class="name" title="' + data.name + '">' + data.name + '</span>&nbsp&nbsp' +
+                    //'<span class="count"><span>' + data.count + '</span>套</span>' +
+                    '</div>';
+                var myLabel = new BMap.Label(tpl, {
+                    position: point, //label 在此处添加点位位置信息
+                    offset: new BMap.Size(-42, -42)
+                });
+                myLabel.setStyle({
+                    height: "22px", //高度
+                    lineHeight: "22px",
+                    border: "0", //边
+                    borderRadius: "2px",
+                    background: "#46ACFF", //背景颜色
+                    opacity: 0.9,
+                    cursor: "pointer",
+                    zIndex: 2
+                });
+                myLabel.setTitle(data.name);
 
-				var point = new BMap.Point(data.longitude, data.latitude);
-				//自定义label样式
-				var tpl = '<div class=" bubble-1 ZLQbubble" data-longitude="' + data.longitude + '"' +
-					' data-latitude="' + data.latitude + '">' +
-					'<span class="name" title="' + data.name + '">' + data.name + '</span>&nbsp&nbsp' +
-					'<span class="count"><span>' + data.count + '</span>套</span>' +
-					'</div>';
-				var myLabel = new BMap.Label(tpl, {
-					position: point, //label 在此处添加点位位置信息
-					offset: new BMap.Size(-42, -42)
-				});
-				myLabel.setStyle({
-					height: "22px", //高度
-					lineHeight: "22px",
-					border: "0", //边
-					borderRadius: "2px",
-					background: "#46ACFF", //背景颜色
-					opacity: 0.9,
-					cursor: "pointer",
-					zIndex: 2
-				});
-				myLabel.setTitle(data.name);
+                //直接缓存起来
+                thirdlyMkr.push(myLabel);
+                myLabel.addEventListener("mouseover", function () {
+                    myLabel.setStyle({
+                        background: "#E2A76E",
+                        zIndex: 4
+                    }); //修改覆盖物背景颜色
+                });
+                myLabel.addEventListener("mouseout", function () {
+                    myLabel.setStyle({
+                        background: "#46ACFF",
+                        zIndex: 2
+                    }); //修改覆盖物背景颜色
+                });
 
-				//直接缓存起来
-				thirdlyMkr.push(myLabel);
-				myLabel.addEventListener("mouseover", function() {
-					myLabel.setStyle({
-						background: "#E2A76E",
-						zIndex: 4
-					}); //修改覆盖物背景颜色
-				});
-				myLabel.addEventListener("mouseout", function() {
-					myLabel.setStyle({
-						background: "#46ACFF",
-						zIndex: 2
-					}); //修改覆盖物背景颜色
-				});
+                myLabel.addEventListener("click", function () {
+                    currentEndTitle = myLabel.getTitle();
+                    RountedSearching(myValue, currentEndTitle);
+                });
 
-				myLabel.addEventListener("click", function() {});
+            })
+        }
 
-			})
-		}
+        //根据视野动态加载
+        addViewLabel(thirdlyMkr);
 
-		//根据视野动态加载
-		addViewLabel(thirdlyMkr)
-	}
+    }
+
+
+
 	//根据行政区划绘制边界
 	function getBoundary(regionName) {
 
@@ -558,15 +416,16 @@
 	 * @param {Object} labels
 	 */
 	function addViewLabel(mkr) {
-		map.clearOverlays();
-		for(var i = 0; i < mkr.length; i++) {
+        map.clearOverlays();
+        for(var i = 0; i < mkr.length; i++) {
 			var result = isPointInRect(mkr[i].point, map.getBounds());
 			if(result == true) {
 				map.addOverlay(mkr[i])
 			} else {
 				map.removeOverlay(mkr[i]);
 			}
-		}
+
+        }
 	}
 
 	//判断地图视野包含哪些点
@@ -626,5 +485,141 @@
 		//如果是奇数个交点则点在多边形内
 		return crossPointNum%2===1
 	}
+
+
+
+    // 通勤路线规划
+    var currentWorkPoint;
+    function drivingWay(way) {
+        if(way==1){
+            vehicle = "WALK";
+        }
+        else if(way==2)
+        {
+            vehicle = "SUBWAY";
+        }
+        else if (way==3)
+        {
+            vehicle = "DRIVE";
+        }
+        if(myValue && currentEndTitle){
+            RountedSearching(myValue,currentEndTitle)
+        }
+
+    }
+
+    function commutingScope(data) {
+        workScope = data;
+        if(currentWorkPoint){
+            drawCircle(currentWorkPoint);
+        }
+        if(myValue && currentEndTitle){
+            RountedSearching(myValue,currentEndTitle)
+        }
+    }
+
+
+    // 搜索工作地点
+    function G(id) {
+	    workMode = 1
+		return document.getElementById(id);
+	}
+
+
+	var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+		{"input" : "suggestId"
+		,"location" : map
+	});
+
+	ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+	    var str = "";
+		var _value = e.fromitem.value;
+		var value = "";
+		if (e.fromitem.index > -1) {
+			value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+		}
+		str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+
+		value = "";
+		if (e.toitem.index > -1) {
+			_value = e.toitem.value;
+			value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+		}
+		str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+		G("searchResultPanel").innerHTML = str;
+	});
+
+    //鼠标点击下拉列表后的事件
+	ac.addEventListener("onconfirm", function(e) {
+	    var _value = e.item.value;
+		myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+		G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+		setPlace();
+	});
+
+	// 标记所选工作地点
+	function setPlace(){
+		map.clearOverlays();    //清除地图上所有覆盖物
+		function myFun(){
+			var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+            currentWorkPoint = pp;
+			if(workScope==3000){
+			    map.centerAndZoom(pp, 15);
+            }else if(workScope==5000){
+			    map.centerAndZoom(pp, 14);
+            }else if(workScope==7000){
+			    map.centerAndZoom(pp, 12);
+            }
+            drawCircle(currentWorkPoint)
+            var myMarker = new BMap.Marker(pp);
+			myMarker.setAnimation(BMAP_ANIMATION_BOUNCE);
+            map.addOverlay(myMarker);    //添加标注
+            WorkLoc = myMarker;
+		}
+		var local = new BMap.LocalSearch(map, { //智能搜索
+		  onSearchComplete: myFun
+		});
+		local.search(myValue);
+
+	}
+
+	// 画圆
+	function drawCircle(mPoint) {
+        var circle = new BMap.Circle(mPoint,workScope,{fillColor:"#0c87e7", strokeWeight: 1 ,fillOpacity: 0.4, strokeOpacity: 0.3});
+        Circle =circle;
+        map.addOverlay(circle);
+        show(circle)
+        map.addOverlay(circle);
+    }
+
+
+    function RountedSearching(start,end) {
+        if(myDriving){
+	        myDriving.clearResults();
+            }
+        if(vehicle=="DRIVE"){
+        var driving = new BMap.DrivingRoute(map, {renderOptions: {map: map, panel: "r-result", autoViewport: true}});
+        driving.search(start, end);
+        myDriving = driving
+        }
+        else if(vehicle=="SUBWAY"){
+            var transit = new BMap.TransitRoute(map, {
+		        renderOptions: {map: map, panel: "r-result"}
+	        });
+            myDriving = transit;
+	        transit.search(start, end);
+        }
+        else if(vehicle=="WALK"){
+            var walking = new BMap.WalkingRoute(map, {renderOptions: {map: map, panel: "r-result", autoViewport: true}});
+            myDriving = walking
+	        walking.search(start, end);
+        }
+
+    }
+
+    function printTest(data) {
+        str = "<p> myValue：" + myValue + "<br>"+ data+"</p>";
+        document.getElementById("test_panel").innerHTML = str;
+    }
 
 </script>

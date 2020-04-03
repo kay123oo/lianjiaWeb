@@ -3,13 +3,15 @@ from django.views import generic
 from .models import zufang
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.cache import cache_page
-from .utils.district_and_microdistrict import DM ,ZH_EN, Cities,District_border, City_Center_Point
+from .utils.district_and_microdistrict import DM, ZH_EN, Cities, District_border, City_Center_Point
 from mongoengine.queryset.visitor import Q
 from .utils.Querying import GetQuerying
 import re
 from .utils.find_conditions import SortingWays
 import logging
 from .data_analysis.RentAnalysis import RentAnalysis
+from django.http import JsonResponse
+from django.core import serializers
 
 
 class IndexView(generic.ListView):
@@ -20,7 +22,7 @@ class IndexView(generic.ListView):
         return zufang.objects.all()[:10]
 
 
-@cache_page(60 * 100)
+#@cache_page(60 * 60)
 def index(request):
     data = {
         'district_house_count_pie_gz': RentAnalysis.district_house_count('广州').render_embed(),
@@ -53,7 +55,7 @@ def index(request):
     return render(request, 'Mainapp/base.html', data)
 
 
-@cache_page(60 * 10)
+@cache_page(60 * 60)  # 单位为秒
 def group_by_city(request, city):
     logging.info('按城市请求租房信息')
     page = request.GET.get('page')
@@ -61,7 +63,7 @@ def group_by_city(request, city):
     return render(request, 'Mainapp/index2.html', data)
 
 
-@cache_page(60 * 10)
+@cache_page(60 * 60)
 def group_by_district(request, city, district):
     logging.info('按区县请求租房信息')
     page = request.GET.get('page')
@@ -69,7 +71,7 @@ def group_by_district(request, city, district):
     return render(request, 'Mainapp/index2.html', data)
 
 
-@cache_page(60 * 10)
+@cache_page(60 * 60)
 def group_by_microdistrict(request, city, district, microdistrict):
     logging.info('按商圈请求租房信息')
     page = request.GET.get('page')
@@ -80,7 +82,7 @@ def group_by_microdistrict(request, city, district, microdistrict):
     return render(request, 'Mainapp/index2.html', data)
 
 
-@cache_page(60 * 10)
+@cache_page(60 * 60)
 def get_by_conditions(request,  conditions, city, district="", microdistrict=""):
     logging.info('按筛选条件请求租房信息')
     resQ = Q()
@@ -179,7 +181,7 @@ def get_return_data(city, district=None,
     return data
 
 
-@cache_page(60 * 100)
+#@cache_page(60 * 60)
 def find_by_map(request, city):
     city_zh = Cities.get(city)
     data = RentAnalysis.map_count(city_zh)
@@ -188,6 +190,22 @@ def find_by_map(request, city):
     data['city_lat'] = City_Center_Point.get(city)[1]
     RentAnalysis.map_count(city_zh)
     return render(request, 'Mainapp/map.html', data)
+
+
+def ajax_update(request, community):
+    print("地图模块局部更新")
+    page = request.GET.get('page')
+    result_list = zufang.objects(community=community)
+    total_count = len(result_list)
+    paginator = Paginator(result_list, 30)
+    try:
+        contacts = paginator.page(page)
+    except PageNotAnInteger:
+        contacts = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+    json_data = serializers.serialize("json", contacts, ensure_ascii=False)
+    return JsonResponse(json_data, content_type='application/json; charset=utf-8', safe=False)
 
 
 
