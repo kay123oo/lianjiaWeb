@@ -182,32 +182,31 @@
   /* 路线规划 */
 #r-result{
     width:25%;
-    height: 320px;
+    height: 490px;
     position: absolute;
-    margin-top: 200px;
+    margin-top: 170px;
     overflow-y:scroll;
     background-color: rgba(227, 232, 243, 0.71);
     position: absolute;
     top: 35px;
-	left: 50px;
-	padding: 0 0 0 0;
+    padding: 0 0 0 0;
 }
 #r-result table{
 	height: 100%;
 }
 .aside{
-
-    height: 150px;
-    width: 25%;
-    top: 80px;
-    position: absolute;
-    background-color: rgb(253, 253, 254);
-	margin-left: 50px;
-	border: 2px solid rgba(154, 154, 154, 0.57);
+	height: 150px;
+	width: 25%;
+	top: 50px;
+	position: absolute;
+	background-color: rgba(83, 132, 192, 0.8);
+	border: 2px solid rgba(253, 253, 254, 0.57);
 }
 #input_loc {
 	margin-top: 5px;
 	padding:5px 0 0 20px;
+	color: #fdfdfe;
+
 }
 #suggestId{
 	margin-left: 10px;
@@ -216,13 +215,15 @@
 }
 .control-entry{
 	padding:5px 0 0 20px;
+	color: #fdfdfe;
+
 }
 #work-location{
     height: 30px;
     font-size: 20px;
+
 }
 .control-input{
-     margin: 0 0 15px 0;
-
-
+	margin: 0 0 15px 0;
+	color: #fdfdfe;
 }

@@ -50,14 +50,14 @@
     </div> <!-- end with control-entry -->
 
     <div id="r-result"></div>
-
+<!--
     <button class="drawing" id="draw">画圈找房</button>
     <button class="exit" id="exit">退出画圈</button>
         <div id="test_panel" style="width:150px;height:150px; padding-left: 150px;position:absolute;top: 450px;
     background-color: beige;">
             测试面板
             <p></p>
-        </div>
+        </div>-->
 <script type="text/javascript">
 
 	var map = null;
@@ -132,7 +132,6 @@
                 {addMarker(secondData, false);}
             else if(zoomLevel > 14 && workMode==0)
                 { addLable(thirdlyData)}
-            printTest(zoomLevel)
 		});
 
 		//监听地图移动,根据视野动态加载

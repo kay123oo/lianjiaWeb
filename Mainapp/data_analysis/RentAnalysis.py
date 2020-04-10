@@ -1,9 +1,13 @@
-from pyecharts.charts import Bar, Pie, WordCloud
+from pyecharts.charts import Bar, Pie, WordCloud, Line
 import pandas as pd
 from pymongo import MongoClient
 from pyecharts import options as opts
 from collections import Counter
 from operator import itemgetter
+from pyecharts.globals import CurrentConfig
+from pyecharts.datasets import register_files
+CurrentConfig.ONLINE_HOST = "http://127.0.0.1:8000/assets/"
+register_files({"myTheme": ["themes/myTheme", "js"]})
 
 
 class RentAnalysis(object):
@@ -23,22 +27,63 @@ class RentAnalysis(object):
     # 城市各地区房源数量条形图
     def district_house_count(self, city):
         df = self.lianjia_df[self.lianjia_df['city'] == city]
-        data = df.groupby('district').count().sort_values(by='price', ascending=False)
-        data.sort_values(by='price')
-        data_x = data.index
-        data_y = list(data.values[:, 0].astype("float"))
+        data = df.groupby('district')['title'].count().reset_index()
+        price = df.groupby('district')['per_price'].mean().round(decimals=2).reset_index()
+        merge_df = pd.merge(data, price, on='district').sort_values(by='title', ascending=False)
         bar = (
-            Bar(
-                init_opts=opts.InitOpts(
-                    width="1000px"
+            Bar(init_opts=opts.InitOpts(
+                    theme="myTheme",
+                    width="600px",
+                    height="600px",
+                    animation_opts=opts.AnimationOpts(
+                        animation_delay=1000, animation_easing="elasticOut"
+                    )
+                ))
+            .add_xaxis(xaxis_data=list(merge_df['district']))
+            .add_yaxis(
+                series_name="房源数量",
+                yaxis_data=list(merge_df['title'].astype("float")),
+                label_opts=opts.LabelOpts(is_show=False),
+            )
+            .extend_axis(
+                yaxis=opts.AxisOpts(
+                    name="元",
+                    type_="value",
                 )
             )
-            .add_xaxis(list(data_x))
-            .add_yaxis('房源数量', data_y)  # numpy.int32不能显示
-            .set_global_opts(title_opts=opts.TitleOpts(title="{}各地区租房房源数量统计".format(city),
-                                                       title_textstyle_opts={'color': '#5385c1'}))
+            .set_global_opts(
+                tooltip_opts=opts.TooltipOpts(
+                    is_show=True, trigger="axis", axis_pointer_type="cross"
+                ),
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",
+                    axispointer_opts=opts.AxisPointerOpts(is_show=True, type_="shadow"),
+                ),
+                yaxis_opts=opts.AxisOpts(
+                    type_="value",
+
+                    axistick_opts=opts.AxisTickOpts(is_show=True),
+                    splitline_opts=opts.SplitLineOpts(is_show=True),
+                ),
+            )
         )
-        return bar
+
+        line = (
+            Line(init_opts=opts.InitOpts(
+                    theme="myTheme",
+                    width="600px",
+                    height="600px",
+                ))
+            .add_xaxis(xaxis_data=list(merge_df['district']))
+            .add_yaxis(
+                series_name="每平方米租金",
+                linestyle_opts=opts.LineStyleOpts(color="#d48265", width=5),
+                yaxis_index=1,
+                y_axis=list(merge_df['per_price']),
+                label_opts=opts.LabelOpts(is_show=True),
+            )
+        )
+        return bar.overlap(line)
 
     # 各地区每平米租金条形图
     def district_rent_price(self, city):
@@ -81,22 +126,23 @@ class RentAnalysis(object):
         data_pair = [list(z) for z in zip(x_data, y_data)]
         data_pair.sort(key=lambda x: x[1])
         pie = (
-            Pie()
+            Pie(init_opts=opts.InitOpts(width="150px", height="150px"))
             .add(
-                series_name="",
+                series_name="朝向分布",
                 radius=["50%", "70%"],
                 data_pair=[list(z) for z in zip(x_data, y_data)],
                 label_opts=opts.LabelOpts(is_show=False, position="center"),
             )
-            .set_global_opts(title_opts=opts.TitleOpts(title="{}户型分布".format(city),
-                                                       title_textstyle_opts={'color': '#5385c1'},),
-                             legend_opts=opts.LegendOpts(type_="scroll",
-                                                         pos_left="85%",
-                                                         pos_top="20%",
-                                                         orient="vertical"),)
+            .set_global_opts(legend_opts=opts.LegendOpts(is_show=False),
+                             title_opts=opts.TitleOpts(
+                                title="朝向分布",
+                                pos_left="center",
+                                pos_top="60",
+                                title_textstyle_opts=opts.TextStyleOpts(color="#fff"),
+                ),)
             .set_series_opts(
-                tooltip_opts=opts.TooltipOpts(trigger="item", formatter="{a} <br/>{b}: {c} ({d}%)"),
-                label_opts=opts.LabelOpts(formatter="{b}:  ({d}%)"))
+                tooltip_opts=opts.TooltipOpts(trigger="item", formatter="{b}: {c} ({d}%)"),
+                label_opts=opts.LabelOpts(color="rgba(255, 255, 255, 0.3)", is_show=False, position="center"))
         )
         return pie
 
@@ -112,25 +158,25 @@ class RentAnalysis(object):
         data_pair = [list(z) for z in zip(x_data, y_data)]
         data_pair.sort(key=lambda x: x[1])
         pie = (
-            Pie(init_opts=opts.InitOpts(width="500px"))
+            Pie(init_opts=opts.InitOpts(width="150px", height="150px"))
             .add(
-                series_name="",
-                radius=["40%", "60%"],
+                series_name="户型分布",
+                radius=["50%", "70%"],
                 data_pair=data_pair,
                 label_opts=opts.LabelOpts(is_show=False, position="center"),
             )
-            .set_global_opts(
-                legend_opts=opts.LegendOpts(type_="scroll",  pos_top="8%"),
-                title_opts=opts.TitleOpts(title="{}朝向统计".format(city),
-                                          title_textstyle_opts={'color': '#5385c1'}),
-
-
-            )
+            .set_global_opts(legend_opts=opts.LegendOpts(is_show=False),
+                                 title_opts=opts.TitleOpts(
+                                     title="户型分布",
+                                     pos_left="center",
+                                     pos_top="60",
+                                     title_textstyle_opts=opts.TextStyleOpts(color="#fff"),
+                                 ), )
             .set_series_opts(
                 tooltip_opts=opts.TooltipOpts(
-                    trigger="item", formatter="{a} <br/>{b}: {c} ({d}%)"
+                    trigger="item", formatter="{b}: {c} ({d}%)"
                 ),
-                label_opts=opts.LabelOpts(formatter="{b}:  ({d}%)")
+                label_opts=opts.LabelOpts(color="rgba(255, 255, 255, 0.3)", is_show=False, position="center")
             )
         )
         return pie
@@ -149,15 +195,14 @@ class RentAnalysis(object):
         bar = (
             Bar(
                 init_opts=opts.InitOpts(
-                    width="1000px"
+                    width="320px",
+                    height="345px",
+                    theme="myTheme",
                 )
             )
             .add_xaxis(x_data)
             .add_yaxis("", y_data)
             .set_global_opts(
-                title_opts=opts.TitleOpts(title="{}租房面积统计".format(city),
-                                          subtitle="我是副标题",
-                                          title_textstyle_opts={'color': '#5385c1'}),
                 datazoom_opts=opts.DataZoomOpts(),
                 xaxis_opts=opts.AxisOpts(name="单位：㎡"),
             )
@@ -175,21 +220,22 @@ class RentAnalysis(object):
         bar = (
             Bar(
                 init_opts=opts.InitOpts(
-                    width="1000px",
+                    width="360px",
+                    height="350px",
+                    theme="myTheme",
                     animation_opts=opts.AnimationOpts(
                         animation_delay=1000, animation_easing="elasticOut"
                     )
                 )
             )
             .add_xaxis(x_data)
-            .add_yaxis("", y_data)
+            .add_yaxis("", y_data,
+                       itemstyle_opts=opts.ItemStyleOpts(color='#d48265'),
+                       )
             .set_global_opts(
-                title_opts=opts.TitleOpts(title="{}租金TOP20商圈".format(city),
-                                          subtitle="我是副标题",
-                                          title_textstyle_opts={'color': '#5385c1'}),
-                yaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(formatter="{value} 元/平方米")),
                 datazoom_opts=opts.DataZoomOpts(),
             )
+
 
         )
         return bar
@@ -207,7 +253,8 @@ class RentAnalysis(object):
         bar = (
             Bar(
                 init_opts=opts.InitOpts(
-                    width="1000px"
+                    width="364px",
+                    height="175px",
                 )
             )
             .add_xaxis(list(x_data))
@@ -233,12 +280,9 @@ class RentAnalysis(object):
         tag_name = Counter(tags).keys()
         tag_count = Counter(tags).values()
         word_cloud = (
-            WordCloud()
+            WordCloud(init_opts=opts.InitOpts(width="400px", height="230px", theme="myTheme",))
             .add(series_name="", data_pair=[list(z) for z in zip(tag_name, tag_count)], word_size_range=[6, 66])
             .set_global_opts(
-                title_opts=opts.TitleOpts(
-                    title="{}租房标签统计".format(city), title_textstyle_opts={'color': '#5385c1'}
-                ),
                 tooltip_opts=opts.TooltipOpts(is_show=True),
             )
         )
@@ -254,22 +298,25 @@ class RentAnalysis(object):
         x_data = ['公寓', '整租', '合租']
         data_pair = [list(z) for z in zip(x_data, y_data)]
         pie = (
-            Pie(init_opts=opts.InitOpts(width="500px"))
+            Pie(init_opts=opts.InitOpts(width="150px", height="150px"))
             .add(
-                series_name="",
-                radius=["40%", "60%"],
+                series_name="类型分布",
+                radius=["50%", "70%"],
                 data_pair=data_pair,
                 label_opts=opts.LabelOpts(is_show=False, position="center"),
             )
-            .set_global_opts(legend_opts=opts.LegendOpts(type_="scroll", pos_top="8%",),
-                             title_opts=opts.TitleOpts(title="{}租赁类型比例".format(city), subtitle="我是副标题",
-                                                       title_textstyle_opts={'color': '#5385c1'})
-                             )
+            .set_global_opts(legend_opts=opts.LegendOpts(is_show=False),
+                            title_opts=opts.TitleOpts(
+                                title="类型分布",
+                                pos_left="center",
+                                pos_top="60",
+                                title_textstyle_opts=opts.TextStyleOpts(color="#fff"),
+                                 ), )
             .set_series_opts(
                 tooltip_opts=opts.TooltipOpts(
-                    trigger="item", formatter="{a} <br/>{b}: {c} ({d}%)"
+                    trigger="item", formatter="{b}: {c} ({d}%)"
                 ),
-                label_opts=opts.LabelOpts(formatter="{b}:  ({d}%)")
+                label_opts=opts.LabelOpts(color="rgba(255, 255, 255, 0.3)", is_show=False, position="center")
             )
         )
         return pie
@@ -307,6 +354,146 @@ class RentAnalysis(object):
             "thirdlyData": thirdData,
         }
         return data
+
+    # 户型与每平方租金的关系
+    def house_type_price_relation(self, city):
+        temp = self.lianjia_df[self.lianjia_df['city'] == city]
+        per_price_mean = temp.groupby('houseType')['per_price'].mean().round(decimals=2).reset_index()
+        count = temp.groupby('houseType')['per_price'].count().reset_index()
+        count.rename(columns={'per_price': 'counter'}, inplace=True)
+        count = count.nlargest(10, 'counter').reset_index()
+        df = pd.merge(count, per_price_mean, on="houseType")
+        bar = (
+            Bar(init_opts=opts.InitOpts(
+                    width="370px",
+                    height="320px",
+                    theme="myTheme",
+                    animation_opts=opts.AnimationOpts(
+                        animation_delay=1000, animation_easing="elasticOut"
+                    )
+                ))
+            .add_xaxis(xaxis_data=list(df['houseType']))
+            .add_yaxis(
+                series_name="房源数量",
+                yaxis_data=list(df['counter'].astype("float")),
+                label_opts=opts.LabelOpts(is_show=False),
+            )
+            .extend_axis(
+                yaxis=opts.AxisOpts(
+                    name="元/平方米",
+                    type_="value",
+                )
+            )
+            .set_global_opts(
+                tooltip_opts=opts.TooltipOpts(
+                    is_show=True, trigger="axis", axis_pointer_type="cross"
+                ),
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",
+                    axispointer_opts=opts.AxisPointerOpts(is_show=True, type_="shadow"),
+                ),
+                yaxis_opts=opts.AxisOpts(
+                    type_="value",
+                    axistick_opts=opts.AxisTickOpts(is_show=True),
+                    splitline_opts=opts.SplitLineOpts(is_show=True),
+                ),
+            )
+        )
+        line = (
+            Line()
+            .add_xaxis(xaxis_data=list(df['houseType']))
+            .add_yaxis(
+                series_name="每平方米租金",
+                yaxis_index=1,
+                y_axis=list(df['per_price']),
+                linestyle_opts=opts.LineStyleOpts(color="#ab2f2f", width=4),
+                label_opts=opts.LabelOpts(is_show=False),
+            )
+        )
+        return bar.overlap(line)
+
+    # 精装与简装与租金的关系
+    def is_decorated_price_relation(self, city):
+        temp = self.lianjia_df[self.lianjia_df['city'] == city]
+        temp['decorated'] = temp[temp['tags'].notna()]['tags'].apply(lambda x: '精装' in x)
+        decorated = temp[temp['decorated'] == True]['per_price'].mean().round(decimals=2)
+        not_decorated = temp[temp['decorated'] == False]['per_price'].mean().round(decimals=2)
+        print("dsadasdsad")
+        print(decorated)
+        print(not_decorated)
+        bar = (
+            Bar(
+                init_opts=opts.InitOpts(
+                    width="400px",
+                    height="320px",
+                    theme="myTheme",
+                    animation_opts=opts.AnimationOpts(
+                        animation_delay=1000, animation_easing="elasticOut"
+                    )
+                )
+            )
+            .add_xaxis(['精装', '简装'])
+            .add_yaxis("简装", [decorated, not_decorated])
+        )
+        return bar
+
+    # 离地铁远近与租金的关系
+    def subway_distance_price_relation(self, city):
+        temp = self.lianjia_df[self.lianjia_df['city'] == city]
+        bins = [100 * i for i in range(13)]
+        temp.dropna(subset=['distance'])
+        temp['bin'] = pd.cut(temp['distance'], bins)
+        per_price = temp.groupby('bin')['per_price'].mean().round(decimals=2)
+        bin_count = temp.groupby('bin')['per_price'].count()
+        bar = (
+            Bar(init_opts=opts.InitOpts(width="524px", height="320px", theme="myTheme"))
+            .add_xaxis(xaxis_data=list(per_price.index.astype('str')))
+            .add_yaxis(
+                series_name="房源数量",
+                yaxis_data=list(bin_count.values.astype("float")),
+                label_opts=opts.LabelOpts(is_show=False),
+                itemstyle_opts=opts.ItemStyleOpts(color='#ab2f2f'),
+            )
+            .extend_axis(
+                yaxis=opts.AxisOpts(
+                    name="元/平方米",
+                    type_="value",
+                    min_=10,
+                    max_=85,
+                    interval=15,
+                )
+            )
+            .set_global_opts(
+                tooltip_opts=opts.TooltipOpts(
+                    is_show=True, trigger="axis", axis_pointer_type="cross"
+                ),
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",
+                    axispointer_opts=opts.AxisPointerOpts(is_show=True, type_="shadow"),
+                ),
+                yaxis_opts=opts.AxisOpts(
+                    type_="value",
+                    min_=0,
+                    max_=4000,
+                    interval=500,
+                    axistick_opts=opts.AxisTickOpts(is_show=True),
+                    splitline_opts=opts.SplitLineOpts(is_show=True),
+                ),
+            )
+        )
+
+        line = (
+            Line()
+                .add_xaxis(xaxis_data=list(per_price.index.astype('str')))
+                .add_yaxis(
+                series_name="每平方米租金",
+                yaxis_index=1,
+                linestyle_opts=opts.LineStyleOpts(color="#f2d643", width=4),
+                y_axis=list(per_price.values),
+                label_opts=opts.LabelOpts(is_show=False),
+            )
+        )
+        return bar.overlap(line)
 
 
 RentAnalysis = RentAnalysis()

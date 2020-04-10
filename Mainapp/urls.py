@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.index),
+    path('', views.vison_test),
     path('ditu/<str:community>', views.ajax_update, name='ajax-list'),
     path('<str:city>/', views.group_by_city),
     path('<str:city>/ditu', views.find_by_map),

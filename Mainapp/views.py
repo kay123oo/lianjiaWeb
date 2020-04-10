@@ -192,6 +192,26 @@ def find_by_map(request, city):
     return render(request, 'Mainapp/map.html', data)
 
 
+def vison_test(request):
+    data = {
+        'district_house_count_pie_gz': RentAnalysis.district_house_count('广州').render_embed(),
+        'microdistrict_price_top10_gz': RentAnalysis.microdistrict_price_top10('广州').render_embed(),
+        #'district_house_count_pie_gz': RentAnalysis.district_house_count('广州').render_embed(),
+        #'district_rent_price_gz': RentAnalysis.district_rent_price('广州').render_embed(),
+        'house_type_count_gz': RentAnalysis.house_type_count('广州').render_embed(),
+        'orientation_count_gz': RentAnalysis.orientation_count('广州').render_embed(),
+        'rent_area_count_gz': RentAnalysis.rent_area_count('广州').render_embed(),
+        'microdistrict_price_top10_gz': RentAnalysis.microdistrict_price_top10('广州').render_embed(),
+        #'tags_count_bar_gz': RentAnalysis.tags_count_bar('广州').render_embed(),
+        'rent_type_pie_gz': RentAnalysis.rent_type_pie('广州').render_embed(),
+         'subway_distance_price_relation': RentAnalysis.subway_distance_price_relation('广州').render_embed(),
+         'is_decorated_price_relation': RentAnalysis.is_decorated_price_relation('广州').render_embed(),
+        'house_type_price_relation': RentAnalysis.house_type_price_relation('广州').render_embed(),
+        'tags_count_word_could': RentAnalysis.tags_count_word_could('广州').render_embed(),
+    }
+    return render(request, 'Mainapp/vision.html', data)
+
+
 def ajax_update(request, community):
     print("地图模块局部更新")
     page = request.GET.get('page')
